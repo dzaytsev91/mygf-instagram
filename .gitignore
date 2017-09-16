@@ -1,0 +1,4 @@
+.idea/
+venv/
+liked_posts.txt
+*.pyc
