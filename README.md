@@ -32,6 +32,5 @@ Just change password, login and target
 
 ## Plans
 
-1) Before starting check if I'm online, if not don't like any post
-2) Add possibility to like random images
-3) Send me all images that bot liked to messenger that I can check when it will be time for this
+1) Add possibility to like random images
+2) Send me all images that bot liked to messenger that I can check when it will be time for this
