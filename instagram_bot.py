@@ -3,6 +3,7 @@
 
 import time
 import requests
+import os
 import datetime
 import json
 import logging
@@ -125,7 +126,9 @@ class InstagramBot(object):
         try:
             response = self.s.get(feed_url)
             users_feed = json.loads(response.text)
-            with open("liked_posts.txt", 'r') as f:
+
+            mode = 'a+' if os.path.exists("liked_posts.txt") else 'w'
+            with open("liked_posts.txt", mode) as f:
                 already_liked_nodes = f.read().splitlines()
             with open("liked_posts.txt", 'a') as f:
                 for media in users_feed['user']['media']['nodes']:
