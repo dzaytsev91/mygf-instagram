@@ -127,7 +127,7 @@ class InstagramBot(object):
             response = self.s.get(feed_url)
             users_feed = json.loads(response.text)
 
-            mode = 'a+' if os.path.exists("liked_posts.txt") else 'w'
+            mode = 'r' if os.path.exists("liked_posts.txt") else 'w'
             with open("liked_posts.txt", mode) as f:
                 already_liked_nodes = f.read().splitlines()
             with open("liked_posts.txt", 'a') as f:
