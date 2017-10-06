@@ -9,6 +9,8 @@ import json
 import logging
 import random
 
+from user_agent import generate_user_agent
+
 
 class InstagramBot(object):
     """
@@ -22,8 +24,9 @@ class InstagramBot(object):
     url_media_detail = 'https://www.instagram.com/p/%s/?__a=1'
     url_user_detail = 'https://www.instagram.com/%s/?__a=1'
 
-    user_agent = ("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 "
-                  "(KHTML, like Gecko) Chrome/48.0.2564.103 Safari/537.36")
+    user_agent = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 "
+                  "YaBrowser/17.9.1.888 Yowser/2.5 Safari/537.36")
     accept_language = 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4'
 
     log_file_path = ''
@@ -81,7 +84,7 @@ class InstagramBot(object):
             'Host': 'www.instagram.com',
             'Origin': 'https://www.instagram.com',
             'Referer': 'https://www.instagram.com/',
-            'User-Agent': self.user_agent,
+            'User-Agent': generate_user_agent(),
             'X-Instagram-AJAX': '1',
             'X-Requested-With': 'XMLHttpRequest'
         })
@@ -101,11 +104,14 @@ class InstagramBot(object):
                 self.login_status = True
                 log_string = '%s login success!' % self.user_login
                 self.write_log(log_string)
+                return True
             else:
                 self.login_status = False
                 self.write_log('Login error! Check your login data!')
+                return False
         else:
             self.write_log('Login error! Connection error!')
+            return False
 
     def logout(self):
         work_time = datetime.datetime.now() - self.bot_start
@@ -134,7 +140,9 @@ class InstagramBot(object):
                 for media in users_feed['user']['media']['nodes']:
                     if media['id'] not in already_liked_nodes:
                         if not self.login_status:
-                            self.login()
+                            logged = self.login()
+                            if not logged:
+                                return
 
                         media = self.s.get(self.url_media_detail % media['code'])
                         if media.status_code != 200:
