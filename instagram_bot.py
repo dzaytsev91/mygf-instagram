@@ -38,7 +38,7 @@ class InstagramBot(object):
 
         self.user_login = login.lower()
         self.user_password = password
-        self.target = target
+        self.target = target.split(',')
         self.login_status = False
         self.login_post = None
         self.csrftoken = None
@@ -128,39 +128,44 @@ class InstagramBot(object):
 
     def like_all_users_media(self):
         """ Send http request to like target's feed """
-        feed_url = self.url_user_detail % self.target
-        try:
-            response = self.s.get(feed_url)
-            users_feed = json.loads(response.text)
+        for target in self.target:
+            feed_url = self.url_user_detail % target
+            try:
+                response = self.s.get(feed_url)
+                users_feed = json.loads(response.text)
+                target_file = "%s.txt" % target
+                if not os.path.exists(target_file):
+                    with open(target_file, 'w') as f:
+                        already_liked_nodes = []
+                else:
+                    with open(target_file, 'r') as f:
+                        already_liked_nodes = f.read().splitlines()
 
-            mode = 'r' if os.path.exists("liked_posts.txt") else 'w'
-            with open("liked_posts.txt", mode) as f:
-                already_liked_nodes = f.read().splitlines()
-            with open("liked_posts.txt", 'a') as f:
-                for media in users_feed['user']['media']['nodes']:
-                    if media['id'] not in already_liked_nodes:
-                        if not self.login_status:
-                            logged = self.login()
-                            if not logged:
-                                return
+                with open(target_file, 'a') as f:
+                    for media in users_feed['user']['media']['nodes']:
+                        if media['id'] not in already_liked_nodes:
+                            if not self.login_status:
+                                logged = self.login()
+                                if not logged:
+                                    return
 
-                        media = self.s.get(self.url_media_detail % media['code'])
-                        if media.status_code != 200:
-                            self.write_log("Media request returned %d status code"
-                                           % media.status_code)
-                            continue
-                        media_data = json.loads(media.text)
-                        media_info = media_data['graphql']['shortcode_media']
-                        if not media_info['viewer_has_liked']:
-                            self.like(media_info['id'])
-                            sleep_time = random.randint(5, 15)
-                            self.write_log("Sleeping %d" % sleep_time)
-                            time.sleep(sleep_time)
-                        f.write(media_info['id'] + '\n')
-        except Exception as e:
-            self.write_log("An error occurred %s" % e)
-        if self.login_status:
-            self.logout()
+                            media = self.s.get(self.url_media_detail % media['code'])
+                            if media.status_code != 200:
+                                self.write_log("Media request returned %d status code"
+                                               % media.status_code)
+                                continue
+                            media_data = json.loads(media.text)
+                            media_info = media_data['graphql']['shortcode_media']
+                            if not media_info['viewer_has_liked']:
+                                self.like(media_info['id'])
+                                sleep_time = random.randint(5, 15)
+                                self.write_log("Sleeping %d" % sleep_time)
+                                time.sleep(sleep_time)
+                            f.write(media_info['id'] + '\n')
+            except Exception as e:
+                self.write_log("An error occurred %s" % e)
+            if self.login_status:
+                self.logout()
         return
 
     def like(self, media_id):

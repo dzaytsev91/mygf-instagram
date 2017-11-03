@@ -36,7 +36,12 @@ Just change password, login and target.
     virtualenv -p python3 venv
     . venv/bin/activate
     pip install -r requirements.txt
-    python example.py
+    python example.py login password gf_account_name
+```
+
+If you want to like more than one account, just pass it with comma separated, for example
+```bash
+    python example.py login password gf_account_name,second_gf_account_name
 ```
 
 ## Plans
