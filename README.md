@@ -5,12 +5,6 @@ script in cron and you don't waste your time checking feed.
 
 Written in python 3.
 
-## Requirements
-
-```
-    requests
-```
-
 ## Configurations
 
 Just call InstagramBot with 3 arguments
