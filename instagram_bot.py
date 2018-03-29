@@ -142,14 +142,14 @@ class InstagramBot(object):
                         already_liked_nodes = f.read().splitlines()
 
                 with open(target_file, 'a') as f:
-                    for media in users_feed['user']['media']['nodes']:
-                        if media['id'] not in already_liked_nodes:
+                    for media in users_feed['graphql']['user']['edge_owner_to_timeline_media']['edges']:
+                        if media['node']['id'] not in already_liked_nodes:
                             if not self.login_status:
                                 logged = self.login()
                                 if not logged:
                                     return
 
-                            media = self.s.get(self.url_media_detail % media['code'])
+                            media = self.s.get(self.url_media_detail % media['node']['shortcode'])
                             if media.status_code != 200:
                                 self.write_log("Media request returned %d status code"
                                                % media.status_code)
