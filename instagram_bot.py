@@ -128,12 +128,22 @@ class InstagramBot(object):
 
     def like_all_users_media(self):
         """ Send http request to like target's feed """
+
         for target in self.target:
-            feed_url = self.url_user_detail % target
             try:
-                response = self.s.get(feed_url)
-                users_feed = json.loads(response.text)
+                resp = self.s.get(os.path.join(self.url, target))
+                data = json.loads(
+                    resp.text.split("window._sharedData = ")[1]
+                        .split(";</script>")[0]
+                )
                 target_file = "%s.txt" % target
+                if not data['entry_data']:
+                    print(
+                        'You are trying to access a closed account %s,'
+                        ' currently this functional does not support' % target
+                    )
+                    continue
+                profile_data = data['entry_data']['ProfilePage'][0]
                 if not os.path.exists(target_file):
                     with open(target_file, 'w') as f:
                         already_liked_nodes = []
@@ -142,7 +152,7 @@ class InstagramBot(object):
                         already_liked_nodes = f.read().splitlines()
 
                 with open(target_file, 'a') as f:
-                    for media in users_feed['graphql']['user']['edge_owner_to_timeline_media']['edges']:
+                    for media in profile_data['graphql']['user']['edge_owner_to_timeline_media']['edges']:
                         if media['node']['id'] not in already_liked_nodes:
                             if not self.login_status:
                                 logged = self.login()

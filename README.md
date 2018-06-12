@@ -38,6 +38,9 @@ If you want to like more than one account, just pass it with comma separated, fo
     python example.py login password gf_account_name,second_gf_account_name
 ```
 
+## Currently not supported
+Possibility to like a closed account
+
 ## Plans
 
 1) Add possibility to like random images
