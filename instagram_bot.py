@@ -132,10 +132,15 @@ class InstagramBot(object):
         for target in self.target:
             try:
                 resp = self.s.get(os.path.join(self.url, target))
-                data = json.loads(
-                    resp.text.split("window._sharedData = ")[1]
-                        .split(";</script>")[0]
-                )
+                try:
+                    data = json.loads(
+                        resp.text.split("window._sharedData = ")[1]
+                            .split(";</script>")[0]
+                    )
+                except IndexError:
+                    # catch error when The link you followed may be broken
+                    # or the page may have been removed
+                    continue
                 target_file = "%s.txt" % target
                 if not data['entry_data']:
                     print(
