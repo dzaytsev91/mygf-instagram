@@ -9,8 +9,6 @@ import json
 import logging
 import random
 
-from user_agent import generate_user_agent
-
 
 class InstagramBot(object):
     """
@@ -84,7 +82,7 @@ class InstagramBot(object):
             'Host': 'www.instagram.com',
             'Origin': 'https://www.instagram.com',
             'Referer': 'https://www.instagram.com/',
-            'User-Agent': generate_user_agent(),
+            'User-Agent': self.user_agent,
             'X-Instagram-AJAX': '1',
             'X-Requested-With': 'XMLHttpRequest'
         })
