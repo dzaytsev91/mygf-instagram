@@ -27,19 +27,19 @@ Just call InstagramBot with 3 arguments
 Just change password, login and target.
 
 ```bash
-    virtualenv -p python3 venv
-    . venv/bin/activate
-    pip install -r requirements.txt
-    python example.py login password gf_account_name
+virtualenv -p python3 venv
+. venv/bin/activate
+pip install -r requirements.txt
+python example.py login password gf_account_name
 ```
 
 If you want to like more than one account, just pass it with comma separated, for example
 ```bash
-    python example.py login password gf_account_name,second_gf_account_name
+python example.py login password gf_account_name,second_gf_account_name
 ```
 
 ## Currently not supported
-Possibility to like a closed account
+Possibility to like closed account
 
 ## Plans
 
