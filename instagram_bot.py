@@ -11,13 +11,17 @@ import requests
 from user_agent import generate_user_agent
 
 from constraint import (
-    BASE_URL, URL_LIKES, URL_LOGIN, URL_LOGOUT, URL_MEDIA_DETAIL,
+    BASE_URL,
+    URL_LIKES,
+    URL_LOGIN,
+    URL_LOGOUT,
+    URL_MEDIA_DETAIL,
 )
 
 
 class InstagramBot:
     """
-        Created on base of https://github.com/LevPasha/instabot.py
+    Created on base of https://github.com/LevPasha/instabot.py
     """
 
     accept_language = "ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4"
@@ -53,33 +57,37 @@ class InstagramBot:
         login_time = int(datetime.datetime.now().timestamp())
         log_string = "Trying to login as %s...\n" % self.user_login
         self.write_log(log_string)
-        self.session.cookies.update({
-            "sessionid": "",
-            "mid": "",
-            "ig_pr": "1",
-            "ig_vw": "1920",
-            "csrftoken": "",
-            "s_network": "",
-            "ds_user_id": "",
-        })
+        self.session.cookies.update(
+            {
+                "sessionid": "",
+                "mid": "",
+                "ig_pr": "1",
+                "ig_vw": "1920",
+                "csrftoken": "",
+                "s_network": "",
+                "ds_user_id": "",
+            }
+        )
         self.login_post = {
             "username": self.user_login,
             "enc_password": f"#PWD_INSTAGRAM_BROWSER:0:{login_time}:{self.user_password}",  # noqa
             "queryParams": {},
             "optIntoOneTap": "false",
         }
-        self.session.headers.update({
-            "Accept-Encoding": "gzip, deflate",
-            "Accept-Language": self.accept_language,
-            "Connection": "keep-alive",
-            "Content-Length": "0",
-            "Host": "www.instagram.com",
-            "Origin": "https://www.instagram.com",
-            "Referer": "https://www.instagram.com/accounts/login/",
-            "User-Agent": generate_user_agent(),
-            "X-Instagram-AJAX": "1",
-            "X-Requested-With": "XMLHttpRequest",
-        })
+        self.session.headers.update(
+            {
+                "Accept-Encoding": "gzip, deflate",
+                "Accept-Language": self.accept_language,
+                "Connection": "keep-alive",
+                "Content-Length": "0",
+                "Host": "www.instagram.com",
+                "Origin": "https://www.instagram.com",
+                "Referer": "https://www.instagram.com/accounts/login/",
+                "User-Agent": generate_user_agent(),
+                "X-Instagram-AJAX": "1",
+                "X-Requested-With": "XMLHttpRequest",
+            }
+        )
 
         r = self.session.get(BASE_URL)
         self.session.headers.update({"X-CSRFToken": r.cookies["csrftoken"]})
@@ -97,7 +105,7 @@ class InstagramBot:
             finder = r.text.find(self.user_login)
             if finder != -1:
                 self.login_status = True
-                log_string = "%s login success!" % self.user_login
+                log_string = f"{self.user_login} login success!"
                 self.write_log(log_string)
                 return True
             else:
@@ -124,7 +132,11 @@ class InstagramBot:
     def writer_file(self, target_file, profile_data, already_liked_nodes):
 
         with open(target_file, "a") as f:
-            for media in profile_data["graphql"]["user"]["edge_owner_to_timeline_media"]["edges"]:  # noqa
+            for media in profile_data["graphql"]["user"][
+                "edge_owner_to_timeline_media"
+            ][
+                "edges"
+            ]:  # noqa
                 if media["node"]["id"] not in already_liked_nodes:
                     if not self.login_status:
                         logged = self.login()
@@ -132,7 +144,8 @@ class InstagramBot:
                             return
 
                     media = self.session.get(
-                        URL_MEDIA_DETAIL % media["node"]["shortcode"])
+                        URL_MEDIA_DETAIL % media["node"]["shortcode"]
+                    )
                     if media.status_code != 200:
                         self.write_log(
                             "Media request returned %d status code"
@@ -156,8 +169,9 @@ class InstagramBot:
                 resp = self.session.get(os.path.join(BASE_URL, target))
                 try:
                     data = json.loads(
-                        resp.text.split("window._sharedData = ")[1]
-                            .split(";</script>")[0],
+                        resp.text.split("window._sharedData = ")[1].split(
+                            ";</script>"
+                        )[0],
                     )
                 except IndexError:
                     # catch error when The link you followed may be broken
