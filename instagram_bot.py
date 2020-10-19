@@ -65,6 +65,7 @@ class InstagramBot:
         self.write_log(log_string)
 
     def login(self):
+        login_time = int(datetime.datetime.now().timestamp())
         log_string = "Trying to login as %s...\n" % self.user_login
         self.write_log(log_string)
         self.s.cookies.update({
@@ -78,7 +79,9 @@ class InstagramBot:
         })
         self.login_post = {
             "username": self.user_login,
-            "password": self.user_password,
+            "enc_password": f"#PWD_INSTAGRAM_BROWSER:0:{login_time}:{self.user_password}",
+            "queryParams": {},
+            "optIntoOneTap": "false"
         }
         self.s.headers.update({
             "Accept-Encoding": "gzip, deflate",
@@ -87,17 +90,17 @@ class InstagramBot:
             "Content-Length": "0",
             "Host": "www.instagram.com",
             "Origin": "https://www.instagram.com",
-            "Referer": "https://www.instagram.com/",
+            "Referer": "https://www.instagram.com/accounts/login/",
             "User-Agent": generate_user_agent(),
             "X-Instagram-AJAX": "1",
-            "X-Requested-With": "XMLHttpRequest",
+            'X-Requested-With': 'XMLHttpRequest',
         })
         r = self.s.get(self.url)
         self.s.headers.update({"X-CSRFToken": r.cookies["csrftoken"]})
+
         time.sleep(5 * random.random())
-        login = self.s.post(
-            self.url_login, data=self.login_post, allow_redirects=True,
-        )
+        login = self.s.post(self.url_login, data=self.login_post)
+
         self.s.headers.update({"X-CSRFToken": login.cookies["csrftoken"]})
         self.csrftoken = login.cookies["csrftoken"]
         time.sleep(5 * random.random())
