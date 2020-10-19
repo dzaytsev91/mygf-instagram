@@ -1,0 +1,24 @@
+[tool.black]
+line-length = 79
+target_version = ['py35']
+include = '\.pyi?$'
+exclude = '''
+/(
+  \.eggs
+| \.git
+| \.mypy_cache
+| \.tox
+| \.venv
+| _build
+| build
+| dist
+)/
+'''
+
+[tool.isort]
+# compatible settings with black
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+line_length = 79
