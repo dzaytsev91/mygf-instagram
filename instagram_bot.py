@@ -10,24 +10,16 @@ import time
 import requests
 from user_agent import generate_user_agent
 
+from constraint import (
+    BASE_URL, URL_LIKES, URL_LOGIN, URL_LOGOUT, URL_MEDIA_DETAIL
+)
+
 
 class InstagramBot:
     """
         Created on base of https://github.com/LevPasha/instabot.py
     """
 
-    url = "https://www.instagram.com/"
-    url_likes = "https://www.instagram.com/web/likes/%s/like/"
-    url_login = "https://www.instagram.com/accounts/login/ajax/"
-    url_logout = "https://www.instagram.com/accounts/logout/"
-    url_media_detail = "https://www.instagram.com/p/%s/?__a=1"
-    url_user_detail = "https://www.instagram.com/%s/?__a=1"
-
-    user_agent = (
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 "
-        "YaBrowser/17.9.1.888 Yowser/2.5 Safari/537.36"
-    )
     accept_language = "ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4"
 
     log_file_path = ""
@@ -50,9 +42,7 @@ class InstagramBot:
                      (now_time.strftime("%d.%m.%Y %H:%M"))
 
         if self.log_to_file:
-            log_full_path = "{}{}.log".format(
-                self.log_file_path, self.user_login,
-            )
+            log_full_path = f"{self.user_login}.log"
             formatter = logging.Formatter(
                 "%(asctime)s - %(name)s "
                 "- %(message)s",
@@ -93,14 +83,13 @@ class InstagramBot:
             "Referer": "https://www.instagram.com/accounts/login/",
             "User-Agent": generate_user_agent(),
             "X-Instagram-AJAX": "1",
-            'X-Requested-With': 'XMLHttpRequest',
+            "X-Requested-With": "XMLHttpRequest",
         })
-        r = self.s.get(self.url)
+        r = self.s.get(BASE_URL)
         self.s.headers.update({"X-CSRFToken": r.cookies["csrftoken"]})
 
         time.sleep(5 * random.random())
-        login = self.s.post(self.url_login, data=self.login_post)
-
+        login = self.s.post(URL_LOGIN, data=self.login_post)
         self.s.headers.update({"X-CSRFToken": login.cookies["csrftoken"]})
         self.csrftoken = login.cookies["csrftoken"]
         time.sleep(5 * random.random())
@@ -128,7 +117,7 @@ class InstagramBot:
 
         try:
             logout_post = {"csrfmiddlewaretoken": self.csrftoken}
-            self.s.post(self.url_logout, data=logout_post)
+            self.s.post(URL_LOGOUT, data=logout_post)
             self.write_log("Logout success!")
             self.login_status = False
         except Exception as e:
@@ -139,7 +128,7 @@ class InstagramBot:
 
         for target in self.target:
             try:
-                resp = self.s.get(os.path.join(self.url, target))
+                resp = self.s.get(os.path.join(BASE_URL, target))
                 try:
                     data = json.loads(
                         resp.text.split("window._sharedData = ")[1]
@@ -172,7 +161,7 @@ class InstagramBot:
                                 if not logged:
                                     return
 
-                            media = self.s.get(self.url_media_detail % media["node"]["shortcode"])
+                            media = self.s.get(URL_MEDIA_DETAIL % media["node"]["shortcode"])
                             if media.status_code != 200:
                                 self.write_log(
                                     "Media request returned %d status code"
@@ -196,7 +185,7 @@ class InstagramBot:
     def like(self, media_id):
         """ Send http request to like media by ID """
         if self.login_status:
-            url_likes = self.url_likes % media_id
+            url_likes = URL_LIKES % media_id
             try:
                 res = self.s.post(url_likes)
                 if res.status_code != 200:
