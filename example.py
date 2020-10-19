@@ -9,15 +9,17 @@ from instagram_bot import InstagramBot
 
 
 @click.command(help=__doc__)
-@click.argument('login', type=str)
-@click.argument('password', type=str)
-@click.argument('gf-account', type=str)
+@click.argument("login", type=str)
+@click.argument("password", type=str)
+@click.argument("gf-account", type=str)
 def main(login, password, gf_account):
-    bot = InstagramBot(login=login,
-                       password=password,
-                       target=gf_account)
+    bot = InstagramBot(
+        login=login,
+        password=password,
+        target=gf_account,
+    )
     bot.like_all_users_media()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
