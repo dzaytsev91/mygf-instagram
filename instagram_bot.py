@@ -82,7 +82,9 @@ class InstagramBot:
         self.client = Client(self.user_login, self.password)
 
     def writer_file(self, target_file, profile_data, already_liked_nodes):
-        with open(target_file, "a") as f:
+        current_folder = os.path.dirname(os.path.realpath(__file__))
+        file_path = os.path.join(current_folder, target_file)
+        with open(file_path, "a") as f:
             for media in profile_data["graphql"]["user"][
                 "edge_owner_to_timeline_media"
             ][
